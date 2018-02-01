@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>web_practice2</title>
+    </head>
+    <body>
+        <p><img src="{{ profile_name_url }}" height="150" ></p>
+        <form method="post" action="/send" enctype="multipart/form-data" >
+          <input type="file" id="upload_file" name="upload_file" class="col-sm-4">
+          <input type="submit" value="UPLOAD" class="btn btn-primary btn-lg" >
+        </form>
+        <p><img src="{{ upload_s3_file_url }}" height="150" ></p>
+    </body>
+</html>

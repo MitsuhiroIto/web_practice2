@@ -1,0 +1,10 @@
+.DS_Store
+.python-version
+*.ipynb_checkpoints
+*.pyc
+memo/
+static/uploads/*
+!.gitkeep
+memo/
+models/YAD2K
+models/Mask_RCNN
