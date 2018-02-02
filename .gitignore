@@ -8,3 +8,5 @@ static/uploads/*
 memo/
 models/YAD2K
 models/Mask_RCNN
+config.yml
+test_image
