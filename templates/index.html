@@ -5,11 +5,18 @@
         <title>web_practice2</title>
     </head>
     <body>
-        <p><img src="{{ profile_name_url }}" height="150" ></p>
         <form method="post" action="/send" enctype="multipart/form-data" >
           <input type="file" id="upload_file" name="upload_file" class="col-sm-4">
           <input type="submit" value="UPLOAD" class="btn btn-primary btn-lg" >
         </form>
         <p><img src="{{ upload_s3_file_url }}" height="150" ></p>
+        {% if upload_s3_file_url %}
+          <div style="margin-top:10px ;margin-right:5px">
+            <form method="post" action="/augmentation">
+              <input type="hidden" name="button_name" value="Canny">
+              <button type="submit" name = "file_name" value="{{ upload_file_name }}" class="btn btn-secondary btn-lg">Canny</button>
+            </form>
+          </div>
+        {% endif %}
     </body>
 </html>

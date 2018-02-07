@@ -10,3 +10,4 @@ models/YAD2K
 models/Mask_RCNN
 config.yml
 test_image
+zappa_settings.json
