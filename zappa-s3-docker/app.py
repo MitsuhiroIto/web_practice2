@@ -1,18 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
-from werkzeug import secure_filename
 import os
 import boto3
 
 app = Flask(__name__)
-bucket_name = 'mitsu-web-app2'
+bucket_name = 'mitsu-zappa-s3-docker'
+app.config['USE_S3_DEBUG'] = True
 
-boto3_resource_s3 = boto3.resource('s3')
-boto3_client_s3 = boto3.client('s3')
-boto3_client_batch = boto3.client('batch')
+resource_s3 = boto3.resource('s3')
+client_s3 = boto3.client('s3')
+client_batch = boto3.client('batch')
 
 JOB_QUEUE = 'mitsu-batch-que'
 JOB_DEFINITION = 'mitsu-batch-test'
+upload_folder = 'static/uploads/'
 
 @app.route('/')
 def index():
@@ -22,22 +23,20 @@ def index():
 def send():
     if request.method == 'POST':
         upload_file = request.files['upload_file']
-        upload_file_name = secure_filename(upload_file.filename)
-        _upload_s3_file_url = 'static/uploads/' + upload_file_name
-        boto3_resource_s3.Bucket(bucket_name).upload_fileobj( upload_file, _upload_s3_file_url)
-        upload_s3_file_url = boto3_client_s3.generate_presigned_url(ClientMethod='get_object',
-        Params={'Bucket': bucket_name,'Key':_upload_s3_file_url })
-        return render_template('index.html', upload_s3_file_url = upload_s3_file_url, upload_file_name = upload_file_name)
+        resource_s3.Bucket(bucket_name).put_object(Key= upload_folder + upload_file.filename, Body=upload_file.read(), ACL='public-read')
+        upload_url = 'https://s3-ap-northeast-1.amazonaws.com/' + bucket_name + '/' + upload_folder + upload_file.filename
+        client_s3.get_waiter('object_exists').wait(Bucket=bucket_name, Key=upload_folder + upload_file.filename)
+        return render_template('index.html', upload_url = upload_url )
 
 @app.route('/augmentation', methods=['GET', 'POST'])
 def augmentation():
     if request.form['button_name'] == "Canny":
-        file_name = request.form['file_name']
+        file_name = request.form['upload_url'].rsplit('/', 1)[-1]
         file_name_af = file_name.rsplit('.', 1)[0]   + "_canny." + file_name.rsplit('.', 1)[1]
-        s3_url_src = 's3://mitsu-web-app2/static/uploads/' + file_name
-        s3_url_dst = 's3://mitsu-web-app2/static/uploads/' + file_name_af
+        s3_url_src = 's3://' + bucket_name + '/' + upload_folder + file_name
+        s3_url_dst = 's3://' + bucket_name + '/' + upload_folder + file_name_af
 
-        boto3_client_batch.submit_job(
+        client_batch.submit_job(
             jobName='job-mitsu-' + datetime.now().strftime('%Y%m%d-%H%M%S'),
             jobQueue=JOB_QUEUE,
             jobDefinition=JOB_DEFINITION,

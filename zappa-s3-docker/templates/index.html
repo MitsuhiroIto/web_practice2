@@ -2,19 +2,19 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>web_practice2</title>
+        <title>zappa-s3-docker</title>
     </head>
     <body>
-        <form method="post" action="/send" enctype="multipart/form-data" >
+        <form method="post" action="{{ url_for('send') }}" enctype="multipart/form-data" >
           <input type="file" id="upload_file" name="upload_file" class="col-sm-4">
           <input type="submit" value="UPLOAD" class="btn btn-primary btn-lg" >
         </form>
-        <p><img src="{{ upload_s3_file_url }}" height="150" ></p>
-        {% if upload_s3_file_url %}
+        {% if upload_url %}
+          <p><img src="{{ upload_url }}" height="150" ></p>
           <div style="margin-top:10px ;margin-right:5px">
-            <form method="post" action="/augmentation">
+            <form method="post" action="{{ url_for('augmentation') }}">
               <input type="hidden" name="button_name" value="Canny">
-              <button type="submit" name = "file_name" value="{{ upload_file_name }}" class="btn btn-secondary btn-lg">Canny</button>
+              <button type="submit" name = "upload_url" value="{{ upload_url }}" class="btn btn-secondary btn-lg">Canny</button>
             </form>
           </div>
         {% endif %}
