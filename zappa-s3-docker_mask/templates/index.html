@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>zappa-s3-docker</title>
+    </head>
+    <body>
+        <form method="post" action="{{ url_for('send') }}" enctype="multipart/form-data" >
+          <input type="file" id="upload_file" name="upload_file" class="col-sm-4">
+          <input type="submit" value="UPLOAD" class="btn btn-primary btn-lg" >
+        </form>
+        {% if upload_url %}
+          <p><img src="{{ upload_url }}" height="150" ></p>
+          <div style="margin-top:10px ;margin-right:5px">
+            <form method="post" action="{{ url_for('augmentation') }}">
+              <input type="hidden" name="button_name" value="Mask-RCNN">
+              <button type="submit" name = "upload_url" value="{{ upload_url }}" class="btn btn-secondary btn-lg">Mask-RCNN</button>
+            </form>
+          </div>
+        {% endif %}
+    </body>
+</html>
