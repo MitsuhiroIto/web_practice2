@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 import os
 import boto3
+import json
 
 app = Flask(__name__)
 bucket_name = 'mitsu-aws-image'
@@ -31,39 +32,20 @@ def send():
 @app.route('/augmentation', methods=['GET', 'POST'])
 def augmentation():
     if request.form['button_name'] == "YOLO":
-        file_name = request.form['upload_url'].rsplit('/', 1)[-1]
-        file_name_af = file_name.rsplit('.', 1)[0]   + "_yolo." + file_name.rsplit('.', 1)[1]
-        s3_url_src = 's3://' + bucket_name + '/' + upload_folder + file_name
-        s3_url_dst = 's3://' + bucket_name + '/' + upload_folder + file_name_af
+        f = open('batch_job.json', 'r')
+        containerOverrides = json.load(f)
+
+        containerOverrides['environment'][0]['value'] = file_name = request.form['upload_url'].rsplit('/', 1)[-1]
+        containerOverrides['environment'][1]['value'] = file_name_af = file_name.rsplit('.', 1)[0]   + "_yolo." + file_name.rsplit('.', 1)[1]
+        containerOverrides['environment'][2]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name
+        containerOverrides['environment'][3]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name_af
+        containerOverrides['command']=["sh","shell_script/detect_yolo/fetch_and_run.sh"]
 
         client_batch.submit_job(
             jobName='job-mitsu-' + datetime.now().strftime('%Y%m%d-%H%M%S'),
             jobQueue=JOB_QUEUE,
             jobDefinition=JOB_DEFINITION,
-            containerOverrides={
-                    'command': [
-                        "sh",
-                        "shell_script/detect_yolo/fetch_and_run.sh"
-                    ],
-                    'environment': [
-                        {
-                        'name': 'FILE_NAME',
-                        'value': file_name
-                        },
-                        {
-                        'name': 'FILE_NAME_AF',
-                        'value': file_name_af
-                        },
-                        {
-                        'name': 'BATCH_FILE_S3_URL_SRC',
-                        'value': s3_url_src
-                        },
-                        {
-                        'name': 'BATCH_FILE_S3_URL_DST',
-                        'value': s3_url_dst
-                        },
-                    ]
-                },
+            containerOverrides=containerOverrides
             )
 
         return render_template('index.html')

@@ -1,0 +1,24 @@
+{
+        "command": [
+            "sh",
+            "shell_script/detect_yolo-gpu/fetch_and_run.sh"
+        ],
+        "environment": [
+            {
+            "name": "FILE_NAME",
+            "value": "file_name"
+            },
+            {
+            "name": "FILE_NAME_AF",
+            "value": "file_name_af"
+            },
+            {
+            "name": "BATCH_FILE_S3_URL_SRC",
+            "value": "s3_url_src"
+            },
+            {
+            "name": "BATCH_FILE_S3_URL_DST",
+            "value": "s3_url_dst"
+            }
+        ]
+    }

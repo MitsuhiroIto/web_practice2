@@ -15,4 +15,4 @@ RUN pip install tensorflow
 RUN pip install keras
 RUN pip install awscli
 RUN wget https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5 -O Mask_RCNN/mask_rcnn_coco.h5
-RuN cd Mask_RCNN/coco/PythonAPI && make && make install && python setup.py install
+RUN cd Mask_RCNN/coco/PythonAPI && make && make install && python setup.py install
