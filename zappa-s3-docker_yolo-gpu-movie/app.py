@@ -12,8 +12,8 @@ resource_s3 = boto3.resource('s3')
 client_s3 = boto3.client('s3')
 client_batch = boto3.client('batch')
 
-JOB_QUEUE = 'test2_queue'
-JOB_DEFINITION = 'test2_def'
+JOB_QUEUE = 'test5_queue'
+JOB_DEFINITION = 'test5_def'
 upload_folder = 'static/uploads/'
 
 @app.route('/')
@@ -39,7 +39,7 @@ def augmentation():
         containerOverrides['environment'][1]['value'] = file_name_af = file_name.rsplit('.', 1)[0]   + "_yolo." + file_name.rsplit('.', 1)[1]
         containerOverrides['environment'][2]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name
         containerOverrides['environment'][3]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name_af
-        containerOverrides['command']=["sh","shell_script/detect_yolo-gpu/fetch_and_run.sh"]
+        containerOverrides['command']=["sh","shell_script/detect_yolo-gpu-movie/fetch_and_run.sh"]
 
         client_batch.submit_job(
             jobName='job-mitsu-' + datetime.now().strftime('%Y%m%d-%H%M%S'),

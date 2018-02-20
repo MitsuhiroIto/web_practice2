@@ -1,4 +1,5 @@
-FROM nvidia/cuda:8.0-cudnn6-runtime
+FROM mitsuhiro3116/cuda8-6-opencv
+
 
 ADD config /root/.aws/config
 ADD credentials /root/.aws/credentials
@@ -8,6 +9,7 @@ RUN apt-get -y install git
 RUN apt-get -y install python3-pip
 RUN git clone https://github.com/MitsuhiroIto/shell_script.git
 RUN git clone https://github.com/MitsuhiroIto/YAD2K.git
+
 
 RUN pip3 install numpy h5py pillow
 RUN pip3 install numpy --upgrade
