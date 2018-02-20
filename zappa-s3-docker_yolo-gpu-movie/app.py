@@ -12,8 +12,6 @@ resource_s3 = boto3.resource('s3')
 client_s3 = boto3.client('s3')
 client_batch = boto3.client('batch')
 
-JOB_QUEUE = 'test5_queue'
-JOB_DEFINITION = 'test5_def'
 upload_folder = 'static/uploads/'
 
 @app.route('/')
@@ -32,20 +30,20 @@ def send():
 @app.route('/augmentation', methods=['GET', 'POST'])
 def augmentation():
     if request.form['button_name'] == "YOLO":
-        f = open('batch_job.json', 'r')
-        containerOverrides = json.load(f)
+        f = open('json/batch_job.json', 'r')
+        job = json.load(f)
 
-        containerOverrides['environment'][0]['value'] = file_name = request.form['upload_url'].rsplit('/', 1)[-1]
-        containerOverrides['environment'][1]['value'] = file_name_af = file_name.rsplit('.', 1)[0]   + "_yolo." + file_name.rsplit('.', 1)[1]
-        containerOverrides['environment'][2]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name
-        containerOverrides['environment'][3]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name_af
-        containerOverrides['command']=["sh","shell_script/detect_yolo-gpu-movie/fetch_and_run.sh"]
+        job['submit_job']['environment'][0]['value'] = file_name = request.form['upload_url'].rsplit('/', 1)[-1]
+        job['submit_job']['environment'][1]['value'] = file_name_af = file_name.rsplit('.', 1)[0]   + "_yolo." + file_name.rsplit('.', 1)[1]
+        job['submit_job']['environment'][2]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name
+        job['submit_job']['environment'][3]['value'] = 's3://' + bucket_name + '/' + upload_folder + file_name_af
+        job['submit_job']['command']=["sh","shell_script/detect_yolo-gpu-movie/fetch_and_run.sh"]
 
         client_batch.submit_job(
             jobName='job-mitsu-' + datetime.now().strftime('%Y%m%d-%H%M%S'),
-            jobQueue=JOB_QUEUE,
-            jobDefinition=JOB_DEFINITION,
-            containerOverrides=containerOverrides
+            jobQueue=job['queue_name'],
+            jobDefinition=job['definition_name'],
+            containerOverrides=job['submit_job']
             )
 
         return render_template('index.html')

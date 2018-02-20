@@ -2,6 +2,7 @@ import boto3
 import argparse
 import time
 import sys
+import json
 
 batch = boto3.client('batch')
 
@@ -12,7 +13,8 @@ parser.add_argument("--subnets", help="comma delimited list of subnets", type=st
 parser.add_argument("--security-groups", help="comma delimited list of security group ids",type=str, default='sg-10dbac69')
 parser.add_argument("--instance-role", help="instance role", type=str, default='arn:aws:iam::251699169519:instance-profile/ecsInstanceRole')
 parser.add_argument("--service-role", help="service role", type=str, default='arn:aws:iam::251699169519:role/service-role/AWSBatchServiceRole')
-parser.add_argument("--image-id", help="image id", type=str, default='ami-cf1b64a9')
+parser.add_argument("--container", help="container", type=str, default='251699169519.dkr.ecr.ap-northeast-1.amazonaws.com/mitsuhiro3116/yolo_cuda8-6_opencv')
+parser.add_argument("--image-id", help="image id", type=str, default='ami-7f90e919')
 parser.add_argument("--key-pair", help="ec2 key pair", type=str, default='mitsu-aws2')
 args = parser.parse_args()
 
@@ -117,11 +119,19 @@ def main():
     jobQueueName = computeEnvironmentName + '_queue'
     jobDefName = computeEnvironmentName + '_def'
 
+    f = open('json/batch_job.json', 'r')
+    job = json.load(f)
+    job['queue_name'] = jobQueueName
+    job['definition_name'] = jobDefName
+    f = open('json/batch_job.json', 'w')
+    json.dump(job, f)
+
     imageId = args.image_id
     serviceRole = args.service_role
     instanceRole = args.instance_role
     subnets = args.subnets.split(",")
     securityGroups = args.security_groups.split(",")
+    container_url = args.container
     keyPair = args.key_pair
 
     # vcpus and memory in a p2.xlarge
@@ -139,10 +149,7 @@ def main():
                                keyPair=keyPair)
 
     create_job_queue(computeEnvironmentName, jobQueueName)
-
-    container_url = '251699169519.dkr.ecr.ap-northeast-1.amazonaws.com/mitsuhiro3116/yolo_cuda8-6_opencv'
     register_job_definition(jobDefName=jobDefName, image=container_url, unitVCpus=unitVCpus, unitMemory=unitMemory)
-
     print('Successfully created batch entities (compute environment: {}, job queue: {}, job definition: {})'.format(computeEnvironmentName, jobQueueName, jobDefName))
 
 
