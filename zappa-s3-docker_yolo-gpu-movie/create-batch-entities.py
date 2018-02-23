@@ -14,7 +14,7 @@ parser.add_argument("--security-groups", help="comma delimited list of security 
 parser.add_argument("--instance-role", help="instance role", type=str, default='arn:aws:iam::251699169519:instance-profile/ecsInstanceRole')
 parser.add_argument("--service-role", help="service role", type=str, default='arn:aws:iam::251699169519:role/service-role/AWSBatchServiceRole')
 parser.add_argument("--container", help="container", type=str, default='251699169519.dkr.ecr.ap-northeast-1.amazonaws.com/mitsuhiro3116/yolo_cuda8-6_opencv')
-parser.add_argument("--image-id", help="image id", type=str, default='ami-7f90e919')
+parser.add_argument("--image-id", help="image id", type=str, default='ami-e08cf686')
 parser.add_argument("--key-pair", help="ec2 key pair", type=str, default='mitsu-aws2')
 args = parser.parse_args()
 
@@ -29,9 +29,9 @@ def create_compute_environment(computeEnvironmentName, instanceType, unitVCpus, 
         computeResources={
             'type': 'EC2',
             'imageId': imageId,
-            'minvCpus': 0,
-            'maxvCpus': unitVCpus * 2,
-            'desiredvCpus': unitVCpus * 1,
+            'minvCpus': 1,
+            'maxvCpus': 5,
+            'desiredvCpus': 1,
             'instanceTypes': instanceType,
             'subnets': subnets,
             'securityGroupIds': securityGroups,
@@ -62,12 +62,11 @@ def create_compute_environment(computeEnvironmentName, instanceType, unitVCpus, 
 def create_job_queue(computeEnvironmentName, jobQueueName):
     response = batch.create_job_queue(jobQueueName=jobQueueName,
                                       priority=0,
-                                      computeEnvironmentOrder=[
-                                          {
+                                      computeEnvironmentOrder=[{
                                               'order': 0,
                                               'computeEnvironment': computeEnvironmentName
-                                          }
-                                      ])
+                                          }]
+                                      )
 
     spinner = 0
     while True:
