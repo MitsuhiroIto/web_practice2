@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>zappa-s3-docker</title>
+    </head>
+    <body>
+        {% if warning %}
+        <div class="alert alert-warning" role="alert">
+          <strong>Warning!</strong> 許可されていない拡張子、もしくはファイルが指定されてません
+        </div>
+        {% endif %}
+        {% if warning2 %}
+        <div class="alert alert-warning" role="alert">
+          <strong>Warning!</strong> メールアドレスを入力して下さい
+        </div>
+        {% endif %}
+        <form method="post" action="{{ url_for('send') }}" enctype="multipart/form-data" >
+          <input type="file" id="upload_file" name="upload_file" class="col-sm-4">
+          <input type="submit" value="UPLOAD" class="btn btn-primary btn-lg" >
+        </form>
+        {% if upload_url %}
+          <p><img src="{{ upload_url }}" height="150" ></p>
+          <div style="margin-top:10px ;margin-right:5px">
+            <form method="post" action="{{ url_for('augmentation') }}">
+              <p>Enter your e-mail address to notify：<input type="email" name="mail" placeholder="sample@gmail.com"></p>
+              <input type="hidden" name="upload_url" value="{{ upload_url }}">
+              <button type="submit" name = "button_name" value="MASK" class="btn btn-secondary btn-lg">Mask-RCNN</button>
+              <button type="submit" name = "button_name" value="YOLO" class="btn btn-secondary btn-lg">YOLO</button>
+            </form>
+          </div>
+        {% endif %}
+    </body>
+</html>
